@@ -5,6 +5,7 @@ import sqlite3
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QMainWindow, QTabWidget
 
+from .domestic import DomesticTab
 from .settings import SettingsWidget
 
 
@@ -20,7 +21,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Travel Tracker – pracovné cesty")
         self.resize(1000, 680)
         tabs = QTabWidget()
-        tabs.addTab(_placeholder("Tuzemské cesty – pripravuje sa (krok 2)"), "Tuzemské cesty")
+        tabs.addTab(DomesticTab(conn), "Tuzemské cesty")
         tabs.addTab(_placeholder("Zahraničné cesty – pripravuje sa (krok 3)"), "Zahraničné cesty")
         tabs.addTab(SettingsWidget(conn), "Nastavenia")
         self.setCentralWidget(tabs)

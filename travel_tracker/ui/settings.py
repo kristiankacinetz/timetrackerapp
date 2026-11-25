@@ -31,6 +31,9 @@ from PySide6.QtWidgets import (
 
 from .. import repository as repo
 
+MONTH_NAMES = ["Január", "Február", "Marec", "Apríl", "Máj", "Jún",
+               "Júl", "August", "September", "Október", "November", "December"]
+
 
 def _money_spin(decimals: int = 2, maximum: float = 10000.0) -> QDoubleSpinBox:
     s = QDoubleSpinBox()

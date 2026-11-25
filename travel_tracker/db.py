@@ -55,6 +55,20 @@ CREATE TABLE IF NOT EXISTS foreign_rates (
     UNIQUE (country, valid_from)
 );
 
+CREATE TABLE IF NOT EXISTS domestic_trips (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    vehicle_id     INTEGER NOT NULL REFERENCES vehicles(id),
+    start          TEXT NOT NULL,             -- ISO dátum a čas odchodu
+    end            TEXT NOT NULL,             -- ISO dátum a čas príchodu
+    origin         TEXT NOT NULL,
+    destination    TEXT NOT NULL,
+    purpose        TEXT NOT NULL DEFAULT 'Služobne',
+    km             REAL NOT NULL,
+    fuel_price     REAL NOT NULL,             -- € za liter
+    meal_manual    REAL                       -- ručne zadané stravné (inak automaticky)
+);
+CREATE INDEX IF NOT EXISTS idx_domestic_trips_start ON domestic_trips(start);
+
 CREATE TABLE IF NOT EXISTS meta (
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL
