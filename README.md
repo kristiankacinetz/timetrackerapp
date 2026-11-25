@@ -19,6 +19,15 @@ Každý zamestnanec má aplikáciu na svojom počítači; dáta sú v `%APPDATA%
 | 3 | Zahraničné cesty a cestovný príkaz | hotovo |
 | 4 | Zabalenie do .exe, overenie na reálnych dátach | pripravuje sa |
 
+## Inštalácia pre zamestnancov
+
+Stiahnite `TravelTracker.exe` z GitHub Actions (záložka **Actions → Build Windows exe →
+posledný beh → Artifacts**) a spustite ho. Inštalácia nie je potrebná; dáta si aplikácia
+uloží do `%APPDATA%\TravelTracker\data.db`. Pri prvom spustení vyplňte
+**Nastavenia → Profil** a **Nastavenia → Vozidlá**.
+
+Lokálne sa dá .exe zostaviť aj spustením `build.bat` (treba nainštalovaný Python 3.11+).
+
 ## Spustenie (vývoj)
 
 ```
