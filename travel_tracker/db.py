@@ -69,6 +69,49 @@ CREATE TABLE IF NOT EXISTS domestic_trips (
 );
 CREATE INDEX IF NOT EXISTS idx_domestic_trips_start ON domestic_trips(start);
 
+CREATE TABLE IF NOT EXISTS foreign_trips (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    country         TEXT NOT NULL,
+    place           TEXT NOT NULL,             -- miesto pobytu
+    purpose         TEXT NOT NULL,
+    exchange_rate   REAL NOT NULL DEFAULT 1,   -- koľko jednotiek cudzej meny za 1 EUR (ECB)
+    rate_date       TEXT,                      -- dátum kurzového lístka
+    prepayment      TEXT NOT NULL DEFAULT 'firemná bankomatová karta',
+    advance_eur     REAL NOT NULL DEFAULT 0    -- prídel valút / záloha
+);
+
+CREATE TABLE IF NOT EXISTS foreign_segments (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    trip_id       INTEGER NOT NULL REFERENCES foreign_trips(id) ON DELETE CASCADE,
+    seq           INTEGER NOT NULL,
+    transport     TEXT NOT NULL,
+    from_place    TEXT NOT NULL,
+    depart_date   TEXT NOT NULL,
+    depart_time   TEXT,                      -- HH:MM, môže chýbať
+    to_place      TEXT NOT NULL,
+    arrive_date   TEXT NOT NULL,
+    arrive_time   TEXT,
+    km            REAL
+);
+
+-- Ručná úprava diét pre konkrétny deň (napr. 25/50/100 %, alebo 0 pri bezplatnej strave).
+CREATE TABLE IF NOT EXISTS foreign_day_overrides (
+    trip_id   INTEGER NOT NULL REFERENCES foreign_trips(id) ON DELETE CASCADE,
+    day       TEXT NOT NULL,
+    percent   INTEGER NOT NULL,
+    PRIMARY KEY (trip_id, day)
+);
+
+CREATE TABLE IF NOT EXISTS foreign_expenses (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    trip_id       INTEGER NOT NULL REFERENCES foreign_trips(id) ON DELETE CASCADE,
+    category      TEXT NOT NULL CHECK (category IN ('accommodation', 'other', 'paid_by_company')),
+    day           TEXT NOT NULL,
+    description   TEXT NOT NULL,
+    amount_eur    REAL NOT NULL,
+    attachment    TEXT                       -- cesta k faktúre (PDF)
+);
+
 CREATE TABLE IF NOT EXISTS meta (
     key   TEXT PRIMARY KEY,
     value TEXT NOT NULL

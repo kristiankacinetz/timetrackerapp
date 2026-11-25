@@ -6,6 +6,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QMainWindow, QTabWidget
 
 from .domestic import DomesticTab
+from .foreign import ForeignTab
 from .settings import SettingsWidget
 
 
@@ -22,6 +23,6 @@ class MainWindow(QMainWindow):
         self.resize(1000, 680)
         tabs = QTabWidget()
         tabs.addTab(DomesticTab(conn), "Tuzemské cesty")
-        tabs.addTab(_placeholder("Zahraničné cesty – pripravuje sa (krok 3)"), "Zahraničné cesty")
+        tabs.addTab(ForeignTab(conn), "Zahraničné cesty")
         tabs.addTab(SettingsWidget(conn), "Nastavenia")
         self.setCentralWidget(tabs)

@@ -16,7 +16,7 @@ Každý zamestnanec má aplikáciu na svojom počítači; dáta sú v `%APPDATA%
 |---|---|---|
 | 1 | Základ aplikácie, profil, vozidlá, sadzby | hotovo |
 | 2 | Tuzemské cesty a mesačný export | hotovo |
-| 3 | Zahraničné cesty a cestovný príkaz | pripravuje sa |
+| 3 | Zahraničné cesty a cestovný príkaz | hotovo |
 | 4 | Zabalenie do .exe, overenie na reálnych dátach | pripravuje sa |
 
 ## Spustenie (vývoj)
