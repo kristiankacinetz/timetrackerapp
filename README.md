@@ -12,8 +12,8 @@ a export podkladov pre účtovníčku podľa zákona č. 283/2002 Z.z. o cestovn
 
 Na aplikácii Travel Tracker pracujem od roku 2025. Toto je **najnovšia verzia**, nie prvá.
 Zdrojové kódy pôvodnej verzie z roku 2025 sa stratili, preto som aplikáciu v novembri 2026
-vytvoril nanovo. Nová verzia vychádza z rovnakých podkladov ako tá pôvodná: z výkazov
-tuzemských ciest a cestovných príkazov pre zahraničné cesty, ktoré používam od januára 2026.
+vytvoril nanovo. Nová verzia je postavená podľa výkazov tuzemských ciest a cestovných
+príkazov pre zahraničné cesty, ktoré používam v roku 2026, a exporty im zodpovedajú do centu.
 
 Každý zamestnanec má aplikáciu na svojom počítači; dáta sú v `%APPDATA%\TravelTracker\data.db`.
 
