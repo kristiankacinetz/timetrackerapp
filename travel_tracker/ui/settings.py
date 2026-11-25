@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import sqlite3
 from datetime import date
+from pathlib import Path
 
-from PySide6.QtCore import QDate, Qt
+from PySide6.QtCore import QDate, Qt, QUrl
+from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
@@ -14,6 +16,7 @@ from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
+    QFileDialog,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
@@ -29,6 +32,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .. import backup
+from .. import db
 from .. import repository as repo
 
 MONTH_NAMES = ["Január", "Február", "Marec", "Apríl", "Máj", "Jún",
@@ -418,9 +423,99 @@ class RatesTab(QWidget):
             self._save(lambda c, x: repo.delete_foreign_rate(c, x.id), r)
 
 
+# ====================================================================== záloha
+
+class BackupTab(QWidget):
+    def __init__(self, conn: sqlite3.Connection, on_restored=None):
+        super().__init__()
+        self.conn = conn
+        self.on_restored = on_restored
+        self.db_path = Path(conn.execute("PRAGMA database_list").fetchone()["file"] or db.default_db_path())
+
+        where = QGroupBox("Umiestnenie dát")
+        wl = QVBoxLayout(where)
+        path_label = QLabel(str(self.db_path))
+        path_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        open_btn = QPushButton("Otvoriť priečinok")
+        open_btn.clicked.connect(lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(str(self.db_path.parent))))
+        wl.addWidget(path_label)
+        wl.addWidget(open_btn, alignment=Qt.AlignLeft)
+
+        box = QGroupBox("Záloha")
+        bl = QVBoxLayout(box)
+        info = QLabel("Záloha uloží všetky údaje (profil, vozidlá, sadzby, tuzemské aj zahraničné cesty) "
+                      "do jedného súboru. Uložte ju napríklad na OneDrive alebo sieťový disk.")
+        info.setWordWrap(True)
+        backup_btn = QPushButton("Zálohovať dáta…")
+        backup_btn.clicked.connect(self.make_backup)
+        restore_btn = QPushButton("Obnoviť zo zálohy…")
+        restore_btn.clicked.connect(self.restore)
+        self.last = QLabel()
+        self.last.setStyleSheet("color: gray")
+        bl.addWidget(info)
+        row = QHBoxLayout()
+        row.addWidget(backup_btn)
+        row.addWidget(restore_btn)
+        row.addStretch()
+        bl.addLayout(row)
+        bl.addWidget(self.last)
+
+        lay = QVBoxLayout(self)
+        lay.addWidget(where)
+        lay.addWidget(box)
+        lay.addStretch()
+        self._show_last()
+
+    def _meta(self, key: str) -> str | None:
+        row = self.conn.execute("SELECT value FROM meta WHERE key = ?", (key,)).fetchone()
+        return row["value"] if row else None
+
+    def _show_last(self) -> None:
+        when, where = self._meta("last_backup_at"), self._meta("last_backup_path")
+        self.last.setText(f"Posledná záloha: {when} – {where}" if when else "Záloha ešte nebola vytvorená.")
+
+    def make_backup(self) -> None:
+        last_dir = Path(self._meta("last_backup_path") or (Path.home() / "Documents" / "x")).parent
+        path, _ = QFileDialog.getSaveFileName(self, "Uložiť zálohu", str(last_dir / backup.default_backup_name()),
+                                              "Záloha Travel Tracker (*.db)")
+        if not path:
+            return
+        try:
+            backup.backup_to(self.conn, path)
+        except OSError as e:
+            QMessageBox.warning(self, "Záloha", f"Zálohu sa nepodarilo uložiť:\n{e}")
+            return
+        with self.conn:
+            for key, value in (("last_backup_at", date.today().strftime("%d.%m.%Y")), ("last_backup_path", path)):
+                self.conn.execute("INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)", (key, value))
+        self._show_last()
+        QMessageBox.information(self, "Záloha", f"Záloha bola uložená:\n{path}")
+
+    def restore(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(self, "Vyberte zálohu", str(Path.home() / "Documents"),
+                                              "Záloha Travel Tracker (*.db);;Všetky súbory (*)")
+        if not path:
+            return
+        if QMessageBox.question(
+            self, "Obnoviť zo zálohy",
+            "Aktuálne údaje sa nahradia údajmi zo zálohy. Súčasný stav sa pre istotu uloží "
+            "do priečinka s dátami. Pokračovať?") != QMessageBox.Yes:
+            return
+        try:
+            safety = backup.restore_from(self.conn, path, self.db_path.parent)
+        except (ValueError, sqlite3.Error, OSError) as e:
+            QMessageBox.warning(self, "Obnova", str(e))
+            return
+        QMessageBox.information(self, "Obnova", f"Údaje boli obnovené zo zálohy.\n\n"
+                                                f"Predchádzajúci stav je uložený v:\n{safety}")
+        if self.on_restored:
+            self.on_restored()
+
+
 class SettingsWidget(QTabWidget):
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection, on_restored=None):
         super().__init__()
         self.addTab(ProfileTab(conn), "Profil")
         self.addTab(VehiclesTab(conn), "Vozidlá")
         self.addTab(RatesTab(conn), "Sadzby")
+        self.addTab(BackupTab(conn, on_restored), "Záloha")
