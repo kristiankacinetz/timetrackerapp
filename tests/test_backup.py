@@ -54,3 +54,8 @@ def test_restore_rejects_foreign_file(conn, tmp_path):
 
 def test_default_name():
     assert backup.default_backup_name(datetime(2026, 11, 25, 18, 5)) == "TravelTracker-zaloha-2026-11-25_1805.db"
+
+
+def test_version():
+    import travel_tracker
+    assert travel_tracker.__version__ == "6.0.0"

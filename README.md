@@ -1,5 +1,7 @@
 # Travel Tracker
 
+Aktuálna verzia: **6.0.0**
+
 Lokálna desktopová aplikácia (Windows) na evidenciu pracovných ciest zamestnancov
 a export podkladov pre účtovníčku podľa zákona č. 283/2002 Z.z. o cestovných náhradách.
 
@@ -16,15 +18,6 @@ vytvoril nanovo. Nová verzia je postavená podľa výkazov tuzemských ciest a 
 príkazov pre zahraničné cesty, ktoré používam v roku 2026, a exporty im zodpovedajú do centu.
 
 Každý zamestnanec má aplikáciu na svojom počítači; dáta sú v `%APPDATA%\TravelTracker\data.db`.
-
-## Stav
-
-| Krok | Obsah | Stav |
-|---|---|---|
-| 1 | Základ aplikácie, profil, vozidlá, sadzby | hotovo |
-| 2 | Tuzemské cesty a mesačný export | hotovo |
-| 3 | Zahraničné cesty a cestovný príkaz | hotovo |
-| 4 | Zabalenie do .exe, overenie na reálnych dátach | pripravuje sa |
 
 ## Inštalácia pre zamestnancov
 
